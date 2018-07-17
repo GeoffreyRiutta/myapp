@@ -1,2 +1,10 @@
 <h3>Welcome</h3>
+
+<%= simple_form_for :test_load, url: cci_search_visitors_path, method: :get do |f| %>
+  <%= f.input :data %>
+  <%= f.submit %>
+<% end %>
+
 <%= link_to "Get kml", zero_island_visitors_path %>
+<%= link_to "Get CCI", cci_loc_visitors_path%>
+<%= link_to "Get data", cci_search_visitors_path%>
