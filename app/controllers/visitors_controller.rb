@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'ruby_kml'
 require 'geocoder'
+require 'base64'
+require 'stringio'
 
 class VisitorsController < ApplicationController
     include KML
@@ -45,6 +47,8 @@ class VisitorsController < ApplicationController
         puts "!!!"
 
         result = Geocoder.search(params[:test_load][:data])
+        puts result
+
         folder.features << KML::Placemark.new(
             :name => "CCI",
             :geometry => KML::Point.new(:coordinates => {:lat=> result.first.coordinates[0],:lng=> result.first.coordinates[1]})
@@ -52,6 +56,26 @@ class VisitorsController < ApplicationController
 
         kml.objects << folder 
         send_data kml.render, :filename => "cci_out.kml"
+
+        #create a new geo results
+        #encoding because won't accept straight objects or strings
+        #convert = Base64.encode64(kml.render)
+        result = GeoResult.create(search: params[:test_load][:data])
+
+        fake_file = StringIO.new(kml.render)
+
+        puts "pre silence"
+        puts result.result.attached?
+        puts "lambs"
+        
+        result.result.attach(io: fake_file, filename: "test.kml")
+
+        fake_file.close
+
+        puts "the lotion on its skin"
+        puts result.result.attached?
+        puts "or else it gets attached again"
+        #result.save
     end
 
 end

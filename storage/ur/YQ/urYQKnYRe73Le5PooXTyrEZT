@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Folder>
+    <name>data</name>
+    <Placemark>
+      <name>CCI</name>
+      <Point>
+        <coordinates>-88.0941751,45.8150251</coordinates>
+      </Point>
+    </Placemark>
+  </Folder>
+</kml>

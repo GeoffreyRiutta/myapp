@@ -8,3 +8,15 @@
 <%= link_to "Get kml", zero_island_visitors_path %>
 <%= link_to "Get CCI", cci_loc_visitors_path%>
 <%= link_to "Get data", cci_search_visitors_path%>
+
+<p>
+
+<%- GeoResult.all.each do |item| %>
+  <% if item.result.attached? %>
+    <p>
+    <%= item.search %>
+    <p>
+    <%= link_to "kml", rails_blob_path(item.result, disposition: "attachment") %>
+    <p>
+  <% end %>
+<% end %>
