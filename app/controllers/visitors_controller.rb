@@ -78,6 +78,12 @@ class VisitorsController < ApplicationController
         fake_file.close
 
         #result.save
+
+        #save the data
+        puts "!"*20
+        puts params
+        result.source.attach(io: params[:test_load][:fileinfo], filename: "test.xlsx")
+
     end
 
 end
