@@ -24,10 +24,27 @@ class GeoResultsController < ApplicationController
       @geo_result = GeoResult.find(params[:id])
     end
 
+    def get_kml
+      puts "!!!!!!!"
+      puts params
+      @geo_result =  GeoResult.find(params[:id])
+      kml = @geo_result.result
+      send_data kml, :filename => "cci_out.kml"
+    end
+
     def new
       @geo_result = GeoResult.new()
       
       
+    end
+
+    def destroy
+      @geo_result = GeoResult.find(params[:id])
+      @geo_result.destroy
+
+
+
+      redirect_to geo_results_path
     end
 
     def index 

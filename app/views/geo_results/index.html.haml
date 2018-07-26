@@ -8,3 +8,4 @@
         %tr 
             %td= link_to row.id , row
             %td= row.search
+            %td= link_to "Delete", geo_result_path(row), method: :delete
