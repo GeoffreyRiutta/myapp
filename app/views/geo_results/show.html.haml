@@ -1,2 +1,14 @@
 %h4= @geo_result.search
-= link_to "Get kml", geo_result_get_kml_path(@geo_result)
+
+
+- if @geo_result.source.attached?
+  = link_to "Get Excel file", rails_blob_path(@geo_result.source)
+- else
+  = "Source Excel File Missing"
+<p>
+- if @geo_result.result.attached?
+  = link_to "Get kml", rails_blob_path(@geo_result.result)
+-else
+  = "In progress"
+
+
