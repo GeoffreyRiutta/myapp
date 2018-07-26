@@ -1,0 +1,10 @@
+=link_to new_geo_result_path do 
+    %button.button.btn-primary 
+        = "Neo geo result"
+    
+
+%table 
+    -@geo_results.each do |row|
+        %tr 
+            %td= link_to row.id , row
+            %td= row.search
