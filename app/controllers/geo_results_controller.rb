@@ -27,7 +27,7 @@ class GeoResultsController < ApplicationController
     def get_kml
       puts "!!!!!!!"
       puts params
-      @geo_result =  GeoResult.find(params[:id])
+      @geo_result =  GeoResult.find(params[:geo_result_id])
       kml = @geo_result.result
       send_data kml, :filename => "cci_out.kml"
     end

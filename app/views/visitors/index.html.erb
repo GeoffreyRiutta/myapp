@@ -12,15 +12,4 @@
 
 <p>
 
-<%- GeoResult.all.each do |item| %>
-  <% if item.result.attached? %>
-    <p>
-    <%= item.search %>
-    <p>
-    <%= link_to "kml", rails_blob_path(item.result, disposition: "attachment") %>
-    <p>
-    <% if item.source.attached? %>
-      <%= link_to "source", rails_blob_path(item.source, disposition: "attachment") %>
-    <% end %>
-  <% end %>
-<% end %>
+<%= link_to "Previous runs", geo_results_path %>
