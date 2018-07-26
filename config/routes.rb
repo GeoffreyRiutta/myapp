@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root to: 'visitors#index'
   resources :geo_results do
-    get :get_kml, on: :collection
+    get :get_kml
   end
 
   resources :visitors do
