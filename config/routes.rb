@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   resources :geo_results do
     get :get_kml
+    get :generate_kml
+    get :delete_result
   end
 
   resources :visitors do

@@ -7,8 +7,15 @@
   = "Source Excel File Missing"
 <p>
 - if @geo_result.result.attached?
+  -#can return kml
   = link_to "Get kml", rails_blob_path(@geo_result.result)
+  <p>
+  = link_to "Delete KML", geo_result_delete_result_path(@geo_result)
 -else
   = "In progress"
+  -#try and generate kml from excel
+  -if @geo_result.source.attached?
+    = link_to "Generate KML", geo_result_generate_kml_path(@geo_result)
+  
 
 
