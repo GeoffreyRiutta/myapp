@@ -55,8 +55,11 @@ class GeoResultsController < ApplicationController
       #TODO; actualy geocode instead of puts
       @geo_result = GeoResult.find(params[:geo_result_id])
       #A semi hacky path to
-      active_storage_disk = ActiveStorage::Service::DiskService.new(root: Rails.root.to_s + '/storage/')
-      path = active_storage_disk.send(:path_for, @geo_result.source.blob.key)
+      #active_storage_disk = ActiveStorage::Service::DiskService.new(root: Rails.root.to_s + '/storage/')
+      #path = active_storage_disk.send(:path_for, @geo_result.source.blob.key)
+
+      #less hacky way to get path but still not best, may be best though
+      path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
 
       puts "Look path\n\n"
       puts path
@@ -80,10 +83,16 @@ class GeoResultsController < ApplicationController
 
         if result != nil and result.first != nil
           #so the result is not nill we can add the coords and data
+
+          puts "\nInfo for"
+          puts info
+          print result.first, result.first.coordinates
           folder.features << KML::Placemark.new(
             :name =>info,
-            :geometry => KML::Point.new(:coordinates => {:lat => result.first.coordinates[0], :lon => result.first.coordinates[1]})
+            :geometry => KML::Point.new(:coordinates => {:lat => result.first.coordinates[0], :lng => result.first.coordinates[1]})
           )
+          #attempt to not flood api
+          sleep(0.05)
 
         end
 

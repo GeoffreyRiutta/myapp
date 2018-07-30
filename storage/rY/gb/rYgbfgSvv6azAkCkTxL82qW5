@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Folder>
+    <name>data</name>
+    <Placemark>
+      <name>1 E Regent St, Inglewood, CA</name>
+      <Point>
+        <coordinates>-118.3552348,33.9647639</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1 Hoag Dr, Newport Beach, CA</name>
+      <Point>
+        <coordinates>-117.9300468,33.6247428</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1 Mills Cir, Ontario, CA</name>
+      <Point>
+        <coordinates>-117.551676,34.0730197</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>100 Oceangate, Long Beach, CA</name>
+      <Point>
+        <coordinates>-118.1989539,33.7668357</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>100 W Katella Ave, Anaheim, CA</name>
+      <Point>
+        <coordinates>-117.9070353,33.8029613</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 E 220 Th St, Carson, CA</name>
+      <Point>
+        <coordinates>-118.2557386,33.827855</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 E Olympic Blvd, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.2474374,34.0340314</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 N Sepulveda Blvd, Manhattan Beach, CA</name>
+      <Point>
+        <coordinates>-118.3956347,33.885897</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 S Garfield Ave, Alhambra, CA</name>
+      <Point>
+        <coordinates>-118.1226765,34.0845652</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 W Carson St, Torrance, CA</name>
+      <Point>
+        <coordinates>-118.2918447,33.8307253</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1004 E Olympic Blvd, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.2468792,34.0338688</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1007 Brioso Dr, Costa Mesa, CA</name>
+      <Point>
+        <coordinates>-117.9419709,33.638018</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>10070 4 Th St, Rancho Cucamonga, CA</name>
+      <Point>
+        <coordinates>-117.5856639,34.0778767</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>10092 Westminster Ave, Garden Grove, CA</name>
+      <Point>
+        <coordinates>-117.9534801,33.759296</coordinates>
+      </Point>
+    </Placemark>
+  </Folder>
+</kml>
