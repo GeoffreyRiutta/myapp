@@ -51,6 +51,39 @@ class GeoResultsController < ApplicationController
     end
 
     def generate_kml
+
+      start_row = 0
+      start_text = params[:proccess_info][:start_row]
+
+      if start_text != nil and start_text.to_i > 0
+        start_row = start_text.to_i
+      end
+
+      address_col = 0
+      address_text = params[:proccess_info][:address_col]
+
+      if address_text != nil and address_text.to_i > 0
+        address_col = address_text.to_i
+      end
+
+      lat_col = 0
+      lat_text = params[:proccess_info][:lat_col]
+
+      if lat_text != nil and lat_text.to_i > 0
+        lat_col = lat_text.to_i
+      end
+
+      lon_col = 0
+      lon_text = params[:proccess_info][:lon_col]
+
+      if lon_text != nil and lon_text.to_i > 0
+        lon_col = lon_text.to_i
+      end
+
+      if start_row < 1 
+        #TODO how to do some alerts
+        return
+      end
       #TODO; just looking at first column for now as a test
       #TODO; actualy geocode instead of puts
       @geo_result = GeoResult.find(params[:geo_result_id])
@@ -61,59 +94,126 @@ class GeoResultsController < ApplicationController
       #less hacky way to get path but still not best, may be best though
       path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
 
-      puts "Look path\n\n"
-      puts path
+      if params[:commit] == "geocode" 
+        if address_col < 1
+          return
+        end
+        
 
-      excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
+        
 
-      puts excel_file.info
+        puts "Look path\n\n"
+        puts path
 
-      #so we get first sheet
-      sheet = excel_file.sheet(0)
-      #now we make a kml and feed all the data to it
-      puts sheet
+        excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
 
-      kml = KMLFile.new
-      folder = KML::Folder.new(:name => "data")
+        puts excel_file.info
 
-      for at in 0..sheet.last_row
-        #top left is 1,1 cell also works by y,x
-        info = sheet.cell(at+1,1)
-        result = Geocoder.search(info)
+        #so we get first sheet
+        sheet = excel_file.sheet(0)
+        #now we make a kml and feed all the data to it
+        puts sheet
 
-        if result != nil and result.first != nil
-          #so the result is not nill we can add the coords and data
+        kml = KMLFile.new
+        folder = KML::Folder.new(:name => "data")
 
-          puts "\nInfo for"
-          puts info
-          print result.first, result.first.coordinates
-          folder.features << KML::Placemark.new(
-            :name =>info,
-            :geometry => KML::Point.new(:coordinates => {:lat => result.first.coordinates[0], :lng => result.first.coordinates[1]})
-          )
-          #attempt to not flood api
-          sleep(0.05)
+        for at in start_row..sheet.last_row+1
+          #top left is 1,1 cell also works by y,x
+          info = sheet.cell(at,address_col)
+          result = Geocoder.search(info)
+
+          if result != nil and result.first != nil
+            #so the result is not nill we can add the coords and data
+
+            puts "\nInfo for"
+            puts info
+            print result.first, result.first.coordinates
+            folder.features << KML::Placemark.new(
+              :name =>info,
+              :geometry => KML::Point.new(:coordinates => {:lat => result.first.coordinates[0], :lng => result.first.coordinates[1]})
+            )
+            #attempt to not flood api
+            sleep(0.05)
+
+          end
 
         end
 
+        kml.objects << folder
+
+        #send the user the fresh KML
+        send_data kml.render, :filename => "cci_out.kml"
+
+        #delete if we already have one
+        if @geo_result.result.attached?
+          @geo_result.result.purge
+        end
+
+        #Welcome to the fun that is the attach. Attach wants a physical disk file
+        #gotten through open method but we do not have that. we have a kml object
+        #or the render output which is string. Neither have the read method that is
+        #required for attachment.
+        #so we force it into StringIO which acts like a file in ram and thus has
+        #read
+        fake_file = StringIO.new(kml.render)
+        #TODO; give it better file name
+        @geo_result.result.attach(io: fake_file, filename: "test.kml")
+        #always close your fake files
+        fake_file.close
+      else
+        #here we'll make the lat lon creation
+        if address_col < 1
+          return
+        end
+
+        kml = KMLFile.new
+        folder = KML::Folder.new(:name => "data")
+
+        excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
+
+        puts excel_file.info
+
+        #so we get first sheet
+        sheet = excel_file.sheet(0)
+        #now we make a kml and feed all the data to it
+        puts sheet
+
+        for at in start_row..sheet.last_row+1
+          #top left is 1,1 cell also works by y,x
+          address = sheet.cell(at,address_col)
+          lat = sheet.cell(at,lat_col)
+          lon = sheet.cell(at,lon_col)
+
+          folder.features << KML::Placemark.new(
+            :name =>address,
+            :geometry => KML::Point.new(:coordinates => {:lat => lat, :lng => lon})
+          )
+        end
+
+        kml.objects << folder
+
+        #send the user the fresh KML
+        send_data kml.render, :filename => "from_excel.kml"
+
+        #delete if we already have one
+        if @geo_result.result.attached?
+          @geo_result.result.purge
+        end
+
+        #Welcome to the fun that is the attach. Attach wants a physical disk file
+        #gotten through open method but we do not have that. we have a kml object
+        #or the render output which is string. Neither have the read method that is
+        #required for attachment.
+        #so we force it into StringIO which acts like a file in ram and thus has
+        #read
+        fake_file = StringIO.new(kml.render)
+        #TODO; give it better file name
+        @geo_result.result.attach(io: fake_file, filename: "test.kml")
+        #always close your fake files
+        fake_file.close
+
+        puts "other hit"
       end
-
-      kml.objects << folder
-
-      #send the user the fresh KML
-      send_data kml.render, :filename => "cci_out.kml"
-
-      #Welcome to the fun that is the attach. Attach wants a physical disk file
-      #gotten through open method but we do not have that. we have a kml object
-      #or the render output which is string. Neither have the read method that is
-      #required for attachment.
-      #so we force it into StringIO which acts like a file in ram and thus has
-      #read
-      fake_file = StringIO.new(kml.render)
-      #TODO; give it better file name
-      @geo_result.result.attach(io: fake_file, filename: "test.kml")
-      #always close your fake files
-      fake_file.close
 
       #render "show"
 

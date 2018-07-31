@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Folder>
+    <name>data</name>
+    <Placemark>
+      <name>10067 Sierra Ave, Fontana, CA</name>
+      <Point>
+        <coordinates>-117.4352438,34.0712711</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>101 S Cliffwood Ave, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.486077,34.0566953</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1010 E Avenue E, Lancaster, CA</name>
+      <Point>
+        <coordinates>-118.113073,34.7626644</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1018 Mohawk St, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.2652252,34.0764615</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>10305 Zelzah Ave, Porter Ranch, CA</name>
+      <Point>
+        <coordinates>-118.5239367,34.2579913</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1038 Swarthmore Ave, Pacific Palisades, CA</name>
+      <Point>
+        <coordinates>-118.5246497,34.0480268</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <Point>
+        <coordinates></coordinates>
+      </Point>
+    </Placemark>
+  </Folder>
+</kml>
