@@ -4,30 +4,25 @@
 - if @geo_result.source.attached?
   = link_to "Get Excel file", rails_blob_path(@geo_result.source)
   -#show the excel info
-  <table class = "table table-striped">
-  -#loop through all the rows starting at 1
-  -path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
-  -excel_file  = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
-  -sheet = excel_file.sheet(0)
-  -#some header stuff
-  <tr>
-  <td>
-  ="Column >"
-  </td>
-  -for x in 1..sheet.last_column+1
-    <td>
-    = x
-    </td>
-  -for y in 1..[30,sheet.last_row+1].min
-    <tr>
-    <td>
-    = y 
-    </td>
-    -for x in 1..sheet.last_column+1
-      <td>
-      =sheet.cell(y,x)
-      </td>
-  </table>
+  %table.table.table-striped
+    -#loop through all the rows starting at 1
+    -path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
+    -excel_file  = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
+    -sheet = excel_file.sheet(0)
+    -#some header stuff
+    %tr
+      %td
+        ="Column >"
+      -for x in 1..sheet.last_column+1
+        %td
+          = x
+      -for y in 1..[30,sheet.last_row+1].min
+        %tr
+          %td
+            = y 
+          -for x in 1..sheet.last_column+1
+            %td
+              =sheet.cell(y,x)
   = simple_form_for :proccess_info, url: geo_result_generate_kml_path(@geo_result), method: :get do |f|
     = f.input :start_row ,  label: "Starting row", as: :integer
     = f.input :address_col , label: "Address column number", as: :integer

@@ -3,6 +3,24 @@
   <Folder>
     <name>data</name>
     <Placemark>
+      <name>100 Stonewood St, Downey, CA</name>
+      <Point>
+        <coordinates>-118.121115,33.936904</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 Vin Scully Ave, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.2473929,34.0724464</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1000 Wilshire Blvd, Los Angeles, CA</name>
+      <Point>
+        <coordinates>-118.2612961,34.0503893</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
       <name>10067 Sierra Ave, Fontana, CA</name>
       <Point>
         <coordinates>-117.4352438,34.0712711</coordinates>

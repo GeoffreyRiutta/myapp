@@ -80,10 +80,7 @@ class GeoResultsController < ApplicationController
         lon_col = lon_text.to_i
       end
 
-      if start_row < 1 
-        #TODO how to do some alerts
-        return
-      end
+
       #TODO; just looking at first column for now as a test
       #TODO; actualy geocode instead of puts
       @geo_result = GeoResult.find(params[:geo_result_id])
@@ -95,15 +92,23 @@ class GeoResultsController < ApplicationController
       path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
 
       if params[:commit] == "geocode" 
+
+        bad_item = []
+
         if address_col < 1
+          bad_item << "No address column selected"
+        end
+        if start_row < 1
+          bad_item << "No start row entered"
+        end 
+
+        if bad_item.length > 0
+          flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
+          redirect_to action: "show", id: @geo_result[:id]
+          #redirect_to action: "show", id: params[igeo_result_id]
+          
           return
         end
-        
-
-        
-
-        puts "Look path\n\n"
-        puts path
 
         excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
 
@@ -142,7 +147,7 @@ class GeoResultsController < ApplicationController
         kml.objects << folder
 
         #send the user the fresh KML
-        send_data kml.render, :filename => "cci_out.kml"
+        #send_data kml.render, :filename => "cci_out.kml"
 
         #delete if we already have one
         if @geo_result.result.attached?
@@ -160,9 +165,35 @@ class GeoResultsController < ApplicationController
         @geo_result.result.attach(io: fake_file, filename: "test.kml")
         #always close your fake files
         fake_file.close
+
+        flash[:success] = "File geocoded"
       else
         #here we'll make the lat lon creation
+
+        bad_item = []
+
         if address_col < 1
+          bad_item << "No address column selected"
+        end
+        if start_row < 1
+          bad_item << "No start row entered"
+        end 
+
+        if lat_col < 1
+          bad_item << "No Latitude column selected"
+        end
+
+        if lon_col < 1
+          bad_item << "No Longitude column selected"
+        end
+
+        if bad_item.length > 0
+        
+          flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
+          
+          #redirect_to geo_record_path(@geo_result)
+          redirect_to action: "show", id: @geo_result[:id]
+          #render "show"
           return
         end
 
@@ -193,7 +224,7 @@ class GeoResultsController < ApplicationController
         kml.objects << folder
 
         #send the user the fresh KML
-        send_data kml.render, :filename => "from_excel.kml"
+        #send_data kml.render, :filename => "from_excel.kml"
 
         #delete if we already have one
         if @geo_result.result.attached?
@@ -213,9 +244,10 @@ class GeoResultsController < ApplicationController
         fake_file.close
 
         puts "other hit"
+        flash[:success] = "KML created"
       end
 
-      #render "show"
+      redirect_to action: "show", id: @geo_result[:id]
 
     end
 
