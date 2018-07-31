@@ -1,6 +1,13 @@
 %h4= @geo_result.search
 
-
+- if @geo_result.result.attached?
+  -#can return kml
+  = link_to "Get kml", rails_blob_path(@geo_result.result)
+  <p>
+  = link_to "Delete KML", geo_result_delete_result_path(@geo_result)
+-else
+  = "No kml created"
+<p>
 - if @geo_result.source.attached?
   = link_to "Get Excel file", rails_blob_path(@geo_result.source)
   -#show the excel info
@@ -13,14 +20,15 @@
     %tr
       %td
         ="Column >"
-      -for x in 1..sheet.last_column+1
+      -for x in 1..sheet.last_column
         %td
           = x
-      -for y in 1..[30,sheet.last_row+1].min
+      -#Actual Data
+      -for y in 1..[30,sheet.last_row].min
         %tr
           %td
             = y 
-          -for x in 1..sheet.last_column+1
+          -for x in 1..sheet.last_column
             %td
               =sheet.cell(y,x)
   = simple_form_for :proccess_info, url: geo_result_generate_kml_path(@geo_result), method: :get do |f|
@@ -34,16 +42,7 @@
 -else
   = "Source Excel File Missing"
 <p>
-- if @geo_result.result.attached?
-  -#can return kml
-  = link_to "Get kml", rails_blob_path(@geo_result.result)
-  <p>
-  = link_to "Delete KML", geo_result_delete_result_path(@geo_result)
--else
-  = "In progress"
-  -#try and generate kml from excel
-  -if @geo_result.source.attached?
-    = link_to "Generate KML", geo_result_generate_kml_path(@geo_result)
+
   
 
 

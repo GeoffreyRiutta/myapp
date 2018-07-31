@@ -56,10 +56,5 @@
         <coordinates>-118.5246497,34.0480268</coordinates>
       </Point>
     </Placemark>
-    <Placemark>
-      <Point>
-        <coordinates></coordinates>
-      </Point>
-    </Placemark>
   </Folder>
 </kml>

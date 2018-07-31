@@ -9,8 +9,6 @@ require 'geocoder'
 #attached. KML will not be generated upon creation user will have to request it after attaching 
 #the excel and supplying the column to extract addresses from fo geocoding or lat/lon for pure geo
 #kml creation
-#TODO; lat/lon pure kml creation
-#TODO; actual refrence file for data instead of first row tests
 #TODO; validation of data
 
 
@@ -47,7 +45,7 @@ class GeoResultsController < ApplicationController
     def delete_result
       @geo_result = GeoResult.find(params[:geo_result_id])
       @geo_result.result.purge
-      render "show"
+      redirect_to action: "show", id: @geo_result[:id]
     end
 
     def generate_kml
@@ -90,15 +88,31 @@ class GeoResultsController < ApplicationController
       #less hacky way to get path but still not best, may be best though
       path = ActiveStorage::Blob.service.send(:path_for, @geo_result.source.blob.key)
 
+      #open it as the forced extension dictates because blobs are stored without an 
+      #extension
+      excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
+
+      puts excel_file.info
+
+      #so we get first sheet
+      sheet = excel_file.sheet(0)
+
       if params[:commit] == "geocode" 
 
         bad_item = []
 
         if address_col < 1
-          bad_item << "No address column selected"
+          bad_item << "Incorrect address column selected"
+        end
+        if address_col > sheet.last_column
+          bad_item << " Address column selected farther than columns on sheet"
         end
         if start_row < 1
-          bad_item << "No start row entered"
+          bad_item << "Incorrect start row entered"
+        end 
+
+        if start_row > sheet.last_row
+          bad_item << "Start row past end of rows"
         end 
 
         #we have an error flash error and redirect before exiting early
@@ -108,16 +122,9 @@ class GeoResultsController < ApplicationController
           return
         end
 
-        #open it as the forced extension dictates because blobs are stored without an 
-        #extension
-        excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
+        #when we get a nil returned for geocoding we put address in here
+        bad_address = []
 
-        puts excel_file.info
-
-        #so we get first sheet
-        sheet = excel_file.sheet(0)
-        #now we make a kml and feed all the data to it
-        puts sheet
 
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
@@ -139,7 +146,9 @@ class GeoResultsController < ApplicationController
             )
             #attempt to not flood api
             sleep(0.05)
-
+          else
+            #bad address found
+            bad_address << info
           end
 
         end
@@ -167,24 +176,46 @@ class GeoResultsController < ApplicationController
         fake_file.close
 
         flash[:notice] = "File geocoded"
+        if bad_address.length > 0
+          bad_prefix = "Following addresses could not be found "
+          bad_result = bad_address.to_sentence(last_word_connector: ", and ")
+          flash[:danger] = "#{bad_prefix}#{bad_result}"
+
+        end
+
       else
         #here we'll make the lat lon creation
 
         bad_item = []
 
         if address_col < 1
-          bad_item << "No address column selected"
+          bad_item << "Incorrect address column selected"
+        end
+        if address_col >= sheet.last_column
+          bad_item << " Address column selected farther than columns on sheet"
         end
         if start_row < 1
-          bad_item << "No start row entered"
+          bad_item << "Incorrect start row entered"
+        end 
+
+        if start_row >= sheet.last_row
+          bad_item << "Start row past end of rows"
         end 
 
         if lat_col < 1
-          bad_item << "No Latitude column selected"
+          bad_item << "Incorrect Latitude column selected"
+        end
+
+        if lat_col > sheet.last_column
+          bad_item << " Latitude column selected farther than columns on sheet"
         end
 
         if lon_col < 1
-          bad_item << "No Longitude column selected"
+          bad_item << "Incorrect Longitude column selected"
+        end
+
+        if lon_col > sheet.last_column
+          bad_item << " Longitude column selected farther than columns on sheet"
         end
 
         #we have an error flash error and redirect before exiting early
@@ -196,16 +227,6 @@ class GeoResultsController < ApplicationController
 
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
-        #open it as the forced extension dictates because blobs are stored without an 
-        #extension
-        excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
-
-        puts excel_file.info
-
-        #so we get first sheet
-        sheet = excel_file.sheet(0)
-        #now we make a kml and feed all the data to it
-        puts sheet
 
         for at in start_row..sheet.last_row+1
           #top left is 1,1 cell also works by y,x
@@ -213,17 +234,20 @@ class GeoResultsController < ApplicationController
           lat = sheet.cell(at,lat_col)
           lon = sheet.cell(at,lon_col)
 
-          folder.features << KML::Placemark.new(
-            :name =>address,
-            :geometry => KML::Point.new(:coordinates => {:lat => lat, :lng => lon})
-          )
+          #valid coords work like this
+          #lat -90 < x < 90
+          #lon -180 < y < 180
+
+          if lat > -90 and lat < 90 and lon > -180 and lon < 180
+            folder.features << KML::Placemark.new(
+              :name =>address,
+              :geometry => KML::Point.new(:coordinates => {:lat => lat, :lng => lon})
+            )
+          end
         end
-
         kml.objects << folder
-
         #send the user the fresh KML
         #send_data kml.render, :filename => "from_excel.kml"
-
         #delete if we already have one
         if @geo_result.result.attached?
           @geo_result.result.purge
@@ -260,7 +284,7 @@ class GeoResultsController < ApplicationController
     def destroy
       @geo_result = GeoResult.find(params[:id])
       @geo_result.destroy
-      redirect_to geo_results_path
+      
     end
 
     def index 
