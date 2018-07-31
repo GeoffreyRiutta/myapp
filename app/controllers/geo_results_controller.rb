@@ -52,6 +52,7 @@ class GeoResultsController < ApplicationController
 
     def generate_kml
 
+      #figuring out what the user entered
       start_row = 0
       start_text = params[:proccess_info][:start_row]
 
@@ -81,8 +82,6 @@ class GeoResultsController < ApplicationController
       end
 
 
-      #TODO; just looking at first column for now as a test
-      #TODO; actualy geocode instead of puts
       @geo_result = GeoResult.find(params[:geo_result_id])
       #A semi hacky path to
       #active_storage_disk = ActiveStorage::Service::DiskService.new(root: Rails.root.to_s + '/storage/')
@@ -102,14 +101,15 @@ class GeoResultsController < ApplicationController
           bad_item << "No start row entered"
         end 
 
+        #we have an error flash error and redirect before exiting early
         if bad_item.length > 0
           flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
           redirect_to action: "show", id: @geo_result[:id]
-          #redirect_to action: "show", id: params[igeo_result_id]
-          
           return
         end
 
+        #open it as the forced extension dictates because blobs are stored without an 
+        #extension
         excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
 
         puts excel_file.info
@@ -166,7 +166,7 @@ class GeoResultsController < ApplicationController
         #always close your fake files
         fake_file.close
 
-        flash[:success] = "File geocoded"
+        flash[:notice] = "File geocoded"
       else
         #here we'll make the lat lon creation
 
@@ -187,19 +187,17 @@ class GeoResultsController < ApplicationController
           bad_item << "No Longitude column selected"
         end
 
+        #we have an error flash error and redirect before exiting early
         if bad_item.length > 0
-        
           flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
-          
-          #redirect_to geo_record_path(@geo_result)
           redirect_to action: "show", id: @geo_result[:id]
-          #render "show"
           return
         end
 
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
-
+        #open it as the forced extension dictates because blobs are stored without an 
+        #extension
         excel_file = Roo::Spreadsheet.open(path, {:extension => "xlsx"})
 
         puts excel_file.info
@@ -244,9 +242,11 @@ class GeoResultsController < ApplicationController
         fake_file.close
 
         puts "other hit"
-        flash[:success] = "KML created"
+        flash[:notice] = "KML created"
       end
 
+      #we made it here return to page to get proper alert and let the click to download
+      #cant force download cause redirect stops working when we send user file
       redirect_to action: "show", id: @geo_result[:id]
 
     end
