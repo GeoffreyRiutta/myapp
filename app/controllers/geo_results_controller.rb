@@ -234,15 +234,24 @@ class GeoResultsController < ApplicationController
           lat = sheet.cell(at,lat_col)
           lon = sheet.cell(at,lon_col)
 
+          bad_latlon_count = 0
+
           #valid coords work like this
           #lat -90 < x < 90
           #lon -180 < y < 180
 
-          if lat > -90 and lat < 90 and lon > -180 and lon < 180
+          #the question is how the heck do we determin if its a proper float string
+          #works but is bad
+          good_lat = true if Float(lat) rescue false
+          good_lon = true if Float(lon) rescue false
+
+          if good_lat and good_lon and lat.to_f > -90 and lat.to_f < 90 and lon.to_f > -180 and lon.to_f < 180
             folder.features << KML::Placemark.new(
               :name =>address,
               :geometry => KML::Point.new(:coordinates => {:lat => lat, :lng => lon})
             )
+          else
+            bad_latlon_count = bad_latlon_count + 1
           end
         end
         kml.objects << folder
@@ -267,6 +276,9 @@ class GeoResultsController < ApplicationController
 
         puts "other hit"
         flash[:notice] = "KML created"
+        if bad_latlon_count then
+          flash[:danger] = "Bad Lat/Lon entries found #{bad_latlon_count}"
+        end
       end
 
       #we made it here return to page to get proper alert and let the click to download
