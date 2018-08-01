@@ -117,7 +117,7 @@ class GeoResultsController < ApplicationController
 
         #we have an error flash error and redirect before exiting early
         if bad_item.length > 0
-          flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
+          flash[:danger] = bad_item.to_sentence
           redirect_to action: "show", id: @geo_result[:id]
           return
         end
@@ -129,7 +129,7 @@ class GeoResultsController < ApplicationController
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
 
-        for at in start_row..sheet.last_row+1
+        for at in start_row..sheet.last_row
           #top left is 1,1 cell also works by y,x
           info = sheet.cell(at,address_col)
           result = Geocoder.search(info)
@@ -178,7 +178,9 @@ class GeoResultsController < ApplicationController
         flash[:notice] = "File geocoded"
         if bad_address.length > 0
           bad_prefix = "Following addresses could not be found "
-          bad_result = bad_address.to_sentence(last_word_connector: ", and ")
+          bad_result = bad_address.to_sentence
+          puts "\n\n\n\n\n!!!!!!!! \n\n"
+          puts bad_result
           flash[:danger] = "#{bad_prefix}#{bad_result}"
 
         end
@@ -220,21 +222,22 @@ class GeoResultsController < ApplicationController
 
         #we have an error flash error and redirect before exiting early
         if bad_item.length > 0
-          flash[:danger] = bad_item.to_sentence(last_word_connector: ", and ")
+          flash[:danger] = bad_item.to_sentence
           redirect_to action: "show", id: @geo_result[:id]
           return
         end
 
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
+        bad_latlon_count = 0
 
-        for at in start_row..sheet.last_row+1
+        for at in start_row..sheet.last_row
           #top left is 1,1 cell also works by y,x
           address = sheet.cell(at,address_col)
           lat = sheet.cell(at,lat_col)
           lon = sheet.cell(at,lon_col)
 
-          bad_latlon_count = 0
+          
 
           #valid coords work like this
           #lat -90 < x < 90
@@ -245,13 +248,17 @@ class GeoResultsController < ApplicationController
           good_lat = true if Float(lat) rescue false
           good_lon = true if Float(lon) rescue false
 
+          puts "Look at this #{good_lat} #{good_lon} #{lat} #{lon}"
+
           if good_lat and good_lon and lat.to_f > -90 and lat.to_f < 90 and lon.to_f > -180 and lon.to_f < 180
             folder.features << KML::Placemark.new(
               :name =>address,
               :geometry => KML::Point.new(:coordinates => {:lat => lat, :lng => lon})
             )
           else
-            bad_latlon_count = bad_latlon_count + 1
+            puts "bad one #{bad_latlon_count}"
+            bad_latlon_count += 1
+            puts "now #{bad_latlon_count}"
           end
         end
         kml.objects << folder
@@ -276,7 +283,7 @@ class GeoResultsController < ApplicationController
 
         puts "other hit"
         flash[:notice] = "KML created"
-        if bad_latlon_count then
+        if bad_latlon_count > 0 then
           flash[:danger] = "Bad Lat/Lon entries found #{bad_latlon_count}"
         end
       end

@@ -10,6 +10,16 @@
 <p>
 - if @geo_result.source.attached?
   = link_to "Get Excel file", rails_blob_path(@geo_result.source)
+  = simple_form_for :proccess_info, url: geo_result_generate_kml_path(@geo_result), method: :get do |f|
+    = f.input :start_row ,  label: "Starting row", as: :integer
+    = f.input :address_col , label: "Address column number", as: :integer
+    = f.input :lat_col , label: "Latitude column number", as: :integer
+    = f.input :lon_col , label: "Longitude column number", as: :integer
+  
+    = f.submit "geocode", label: "Geocode from address"
+    = f.submit "latlon", label: "Latitude Longitude kml"
+
+
   -#show the excel info
   %table.table.table-striped
     -#loop through all the rows starting at 1
@@ -31,14 +41,10 @@
           -for x in 1..sheet.last_column
             %td
               =sheet.cell(y,x)
-  = simple_form_for :proccess_info, url: geo_result_generate_kml_path(@geo_result), method: :get do |f|
-    = f.input :start_row ,  label: "Starting row", as: :integer
-    = f.input :address_col , label: "Address column number", as: :integer
-    = f.input :lat_col , label: "Latitude column number", as: :integer
-    = f.input :lon_col , label: "Longitude column number", as: :integer
-  
-    = f.submit "geocode", label: "Geocode from address"
-    = f.submit "latlon", label: "Latitude Longitude kml"
+  -if sheet.last_row > 30
+    = "... More than 30 rows, truncated for brevity"
+        
+
 -else
   = "Source Excel File Missing"
 <p>
