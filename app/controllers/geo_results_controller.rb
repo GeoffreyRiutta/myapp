@@ -150,7 +150,6 @@ class GeoResultsController < ApplicationController
             #bad address found
             bad_address << info
           end
-
         end
 
         kml.objects << folder
@@ -229,7 +228,9 @@ class GeoResultsController < ApplicationController
 
         kml = KMLFile.new
         folder = KML::Folder.new(:name => "data")
-        bad_latlon_count = 0
+        #this is for tracking any latlon that does not look to be a proper cordinate or not even a proper
+        #number
+        bad_latlon_list = []
 
         for at in start_row..sheet.last_row
           #top left is 1,1 cell also works by y,x
@@ -257,7 +258,7 @@ class GeoResultsController < ApplicationController
             )
           else
             puts "bad one #{bad_latlon_count}"
-            bad_latlon_count += 1
+            bad_latlon_list << at
             puts "now #{bad_latlon_count}"
           end
         end
@@ -283,8 +284,9 @@ class GeoResultsController < ApplicationController
 
         puts "other hit"
         flash[:notice] = "KML created"
-        if bad_latlon_count > 0 then
-          flash[:danger] = "Bad Lat/Lon entries found #{bad_latlon_count}"
+        if bad_latlon_list.length > 0 then
+          sentence = bad_latlon_list.to_sentence
+          flash[:danger] = "Bad Lat/Lon entries found on rows #{sentence}"
         end
       end
 
